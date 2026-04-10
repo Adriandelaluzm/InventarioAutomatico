@@ -1,0 +1,27 @@
+[
+  {
+    "sku": "SKU-DES-001",
+    "name": "Desarmador",
+    "class_name": "Desarmador"
+  },
+  {
+    "sku": "SKU-PER-001",
+    "name": "Perno",
+    "class_name": "Perno"
+  },
+  {
+    "sku": "SKU-PIN-001",
+    "name": "Pinza",
+    "class_name": "Pinza"
+  },
+  {
+    "sku": "SKU-RON-001",
+    "name": "Rondana",
+    "class_name": "Rondana"
+  },
+  {
+    "sku": "SKU-TUE-001",
+    "name": "Tuerca",
+    "class_name": "Tuerca"
+  }
+]

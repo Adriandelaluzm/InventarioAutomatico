@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario Automatico</title>
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --panel: #fffaf2;
+      --ink: #1e1b18;
+      --accent: #9b3d12;
+      --accent-soft: #e7c7ae;
+      --line: #d9c9b5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(155, 61, 18, 0.15), transparent 28%),
+        linear-gradient(180deg, #f8f1e8 0%, var(--bg) 100%);
+      color: var(--ink);
+    }
+
+    .shell {
+      width: min(1200px, calc(100% - 32px));
+      margin: 24px auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero, .panel {
+      background: color-mix(in srgb, var(--panel) 92%, white 8%);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 14px 40px rgba(72, 48, 28, 0.08);
+    }
+
+    .hero {
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+    }
+
+    .hero p, .muted {
+      margin: 0;
+      color: rgba(30, 27, 24, 0.72);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-weight: 600;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #bbb;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+    }
+
+    .video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: 18px;
+      background: #221f1c;
+      border: 1px solid #c8b8a3;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .card {
+      padding: 14px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .card strong {
+      display: block;
+      font-size: 1.6rem;
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, opacity 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: wait;
+      transform: none;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fffaf2;
+    }
+
+    .secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      color: rgba(30, 27, 24, 0.7);
+      font-weight: 700;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <span class="pill">Dashboard</span>
+        <h1>Inventario Automatico</h1>
+        <p>Deteccion en vivo con captura manual para registrar inventario.</p>
+      </div>
+      <div class="status">
+        <span class="dot" id="status-dot"></span>
+        <span id="status-text">Cargando estado...</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Video con deteccion en tiempo real</h2>
+        <img class="video" src="/video_feed" alt="Video anotado en tiempo real">
+        <div class="stats">
+          <article class="card">
+            <span class="muted">Objetos en ultima captura</span>
+            <strong id="last-capture-total">0</strong>
+          </article>
+          <article class="card">
+            <span class="muted">Modo de conteo</span>
+            <strong id="capture-mode">Manual</strong>
+          </article>
+        </div>
+        <div class="actions">
+          <button class="primary" id="capture-button">Capturar y contar</button>
+          <button class="secondary" id="reset-button">Reiniciar inventario</button>
+        </div>
+        <p class="muted" id="capture-feedback">El inventario se actualiza solo cuando presionas el boton de captura.</p>
+      </div>
+
+      <div class="stack">
+        <section class="panel">
+          <h2>Resumen de ultima captura</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Clase</th>
+                <th>Cantidad</th>
+              </tr>
+            </thead>
+            <tbody id="class-counts"></tbody>
+          </table>
+        </section>
+
+        <section class="panel">
+          <h2>Estado de vision</h2>
+          <p class="muted" id="vision-details">Sin datos todavia.</p>
+          <p class="muted" id="vision-error"></p>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Inventario actual</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Producto</th>
+            <th>Clase</th>
+            <th>Cantidad</th>
+            <th>Actualizado</th>
+          </tr>
+        </thead>
+        <tbody id="inventory-body"></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Detecciones recientes</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>SKU</th>
+            <th>Producto</th>
+            <th>Confianza</th>
+            <th>Track ID</th>
+          </tr>
+        </thead>
+        <tbody id="detections-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    async function fetchJson(url) {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error consultando ${url}`);
+      }
+      return response.json();
+    }
+
+    async function postJson(url) {
+      const response = await fetch(url, { method: "POST" });
+      if (!response.ok) {
+        let message = `Error ejecutando ${url}`;
+        try {
+          const data = await response.json();
+          message = data.detail || message;
+        } catch {
+          const text = await response.text();
+          message = text || message;
+        }
+        throw new Error(message);
+      }
+      return response.json();
+    }
+
+    function renderInventory(items) {
+      const body = document.getElementById("inventory-body");
+      body.innerHTML = items.map(item => `
+        <tr>
+          <td>${item.sku}</td>
+          <td>${item.name}</td>
+          <td>${item.class_name}</td>
+          <td>${item.quantity}</td>
+          <td>${item.updated_at}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderDetections(items) {
+      const body = document.getElementById("detections-body");
+      body.innerHTML = items.map(item => `
+        <tr>
+          <td>${item.detected_at}</td>
+          <td>${item.sku}</td>
+          <td>${item.name}</td>
+          <td>${item.confidence.toFixed(2)}</td>
+          <td>${item.track_id}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderStatus(status) {
+      document.getElementById("last-capture-total").textContent = status.last_capture_total;
+      document.getElementById("capture-mode").textContent = "Manual";
+      document.getElementById("vision-details").textContent =
+        `Stream: ${status.stream_url} | Modelo: ${status.model_path}`;
+      document.getElementById("vision-error").textContent =
+        status.last_error ? `Ultimo error: ${status.last_error}` : "";
+
+      const dot = document.getElementById("status-dot");
+      const text = document.getElementById("status-text");
+      text.textContent = status.status;
+
+      const colors = {
+        running: "#246a3d",
+        connecting: "#d98c24",
+        reconnecting: "#d98c24",
+        stopped: "#7a7a7a",
+        error: "#b42318"
+      };
+      dot.style.background = colors[status.status] || "#7a7a7a";
+
+      const classRows = Object.entries(status.last_capture_per_class).map(([name, count]) => `
+        <tr>
+          <td>${name}</td>
+          <td>${count}</td>
+        </tr>
+      `).join("");
+      document.getElementById("class-counts").innerHTML = classRows || `
+        <tr><td colspan="2">Sin capturas todavia.</td></tr>
+      `;
+    }
+
+    async function handleCapture() {
+      const button = document.getElementById("capture-button");
+      const feedback = document.getElementById("capture-feedback");
+      button.disabled = true;
+      feedback.textContent = "Capturando frame y registrando inventario...";
+
+      try {
+        const result = await postJson("/api/capture-count");
+        const total = result.total_detected;
+        feedback.textContent = total > 0
+          ? `Captura registrada con ${total} objetos.`
+          : "Captura realizada sin detecciones registradas.";
+        await refresh();
+      } catch (error) {
+        feedback.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function handleReset() {
+      const button = document.getElementById("reset-button");
+      const feedback = document.getElementById("capture-feedback");
+      button.disabled = true;
+      feedback.textContent = "Reiniciando inventario...";
+
+      try {
+        await postJson("/api/inventory/reset");
+        feedback.textContent = "Inventario reiniciado correctamente.";
+        await refresh();
+      } catch (error) {
+        feedback.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function refresh() {
+      try {
+        const [inventory, detections, status] = await Promise.all([
+          fetchJson("/api/inventory"),
+          fetchJson("/api/detections"),
+          fetchJson("/api/vision/status")
+        ]);
+        renderInventory(inventory);
+        renderDetections(detections);
+        renderStatus(status);
+      } catch (error) {
+        document.getElementById("status-text").textContent = error.message;
+        document.getElementById("status-dot").style.background = "#b42318";
+      }
+    }
+
+    document.getElementById("capture-button").addEventListener("click", handleCapture);
+    document.getElementById("reset-button").addEventListener("click", handleReset);
+    refresh();
+    setInterval(refresh, 3000);
+  </script>
+</body>
+</html>

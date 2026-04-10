@@ -1,0 +1,21 @@
+{
+  "settings_version": "0.0.6",
+  "datasets_dir": "C:\\Users\\jadri\\OneDrive\\Documentos\\Inventario Automatico\\datasets",
+  "weights_dir": "weights",
+  "runs_dir": "runs",
+  "uuid": "657bfd9fcf03ce6cc6cb660d279b9cf12998b63772190f5948b82fedce8acab5",
+  "sync": true,
+  "api_key": "",
+  "openai_api_key": "",
+  "clearml": true,
+  "comet": true,
+  "dvc": true,
+  "hub": true,
+  "mlflow": true,
+  "neptune": true,
+  "raytune": true,
+  "tensorboard": false,
+  "wandb": false,
+  "vscode_msg": true,
+  "openvino_msg": true
+}
