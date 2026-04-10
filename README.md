@@ -139,13 +139,3 @@ Notas utiles:
 - `POST /api/capture-count`
 - `GET /video_feed`
 
-## Estado actual
-
-Esta primera version ya integra backend, base de datos y dashboard.
-Todavia se pueden mejorar:
-
-- autenticacion
-- configuracion de SKU desde UI
-- historial con filtros
-- snapshots por deteccion
-- reconexion mas robusta al stream
